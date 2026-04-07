@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
+import { getSession } from "@/lib/session";
 
 const ENV_PATH = path.resolve(process.cwd(), '../.env')
 
@@ -34,6 +35,12 @@ function serializeEnvFile(updates: Record<string, string>): string {
 }
 
 export async function GET() {
+  // ── ORBIT: RBAC guard (auto-generated) ──────────────────────────────────
+  const { user, membership } = await getSession();
+  if (!user)       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!membership) return NextResponse.json({ error: "Forbidden"    }, { status: 403 });
+  // ────────────────────────────────────────────────────────────────────────
+
     try {
         if (!fs.existsSync(ENV_PATH)) {
             return NextResponse.json({
@@ -64,6 +71,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  // ── ORBIT: RBAC guard (auto-generated) ──────────────────────────────────
+  const { user, membership } = await getSession();
+  if (!user)       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!membership) return NextResponse.json({ error: "Forbidden"    }, { status: 403 });
+  // ────────────────────────────────────────────────────────────────────────
+
     try {
         const updates = await request.json()
 
