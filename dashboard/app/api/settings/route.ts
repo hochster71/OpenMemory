@@ -34,6 +34,10 @@ function serializeEnvFile(updates: Record<string, string>): string {
 }
 
 export async function GET() {
+  /* ORBIT[pentest]: auth guard — unauthenticated mutation endpoint */
+  const { data: { user }, error: _authErr } = await supabase.auth.getUser();
+  if (!user || _authErr) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } });
+
     try {
         if (!fs.existsSync(ENV_PATH)) {
             return NextResponse.json({
